@@ -60,8 +60,8 @@ module Hubspot
       end
 
       def single_send_params(mail)
-        raise MissingTemplateError, "Missing emailId parameter." unless mail.email_id.present?
-        raise MissingRecipientError, "Missing recipient email."  unless mail.to.present?
+        raise MissingTemplateError, "Missing emailId parameter." if mail.email_id.blank?
+        raise MissingRecipientError, "Missing recipient email."  if mail.to.blank?
 
         data = {
           emailId: mail.email_id,
@@ -117,12 +117,16 @@ module Hubspot
           when "BLOCKED_DOMAIN", "PORTAL_SUSPENDED"
             raise SendingError.new(response), "Message can't be sent: #{status_code}"
           when "PREVIOUSLY_BOUNCED", "PREVIOUS_SPAM"
-            raise DeliveryError.new(response), "Message can't be delivered: #{status_code}"
+            logger.warn "Message can't be delivered: #{status_code}. Response: #{response}"
           when "MISSING_CONTENT"
             raise InvalidTemplateError.new(response), "The emailId is invalid, or the emailId is an email that is not set up for Single Send: #{status_code}"
           else
             raise UnknownResponseError.new(response), "Unrecognized status code: #{status_code}"
         end
+      end
+
+      def logger
+        Logger.new($stdout)
       end
     end
 
