@@ -12,7 +12,7 @@ module Hubspot
 
     self.default_params = {}.freeze
 
-    SINGLE_SEND_PATH = '/email/public/v1/singleEmail/send'.freeze
+    SINGLE_SEND_PATH = '/marketing/v3/transactional/single-email/send'.freeze
     BASE_URL = 'https://api.hubapi.com'.freeze
     READ_TIMEOUT = 20
     OPEN_TIMEOUT = 20
