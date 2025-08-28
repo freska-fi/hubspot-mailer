@@ -97,7 +97,8 @@ module Hubspot
           if mail.reply_to.size > 1
             data[:message][:replyToList] = mail.reply_to
           else
-            data[:message][:replyTo] = mail.reply_to.first
+            # V3 expects this to be a list
+            data[:message][:replyTo] = [mail.reply_to.first]
           end
         end
 
@@ -108,21 +109,16 @@ module Hubspot
         end
 
         if mail.contact_properties.present?
-          data[:contactProperties] =
-            hash_to_properties(mail.contact_properties, :key_name => :name)
+          # V1 used to expect an array of objects with 'key' and 'value' properties 
+          # but V3 just wants an object with key-value pairs. same for custom_properties.
+          data[:contactProperties] = mail.contact_properties
         end
 
         if mail.custom_properties.present?
-          data[:customProperties] =
-            hash_to_properties(mail.custom_properties, :key_name => :name)
+          data[:customProperties] = mail.custom_properties
         end
 
         data
-      end
-
-      def hash_to_properties(hash, opts = {})
-        key_name = opts[:key_name] || "property"
-        hash.map { |k, v| { key_name => k.to_s, "value" => v } }
       end
 
       def parse_response(response)
