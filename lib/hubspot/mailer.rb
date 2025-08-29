@@ -12,7 +12,7 @@ module Hubspot
 
     self.default_params = {}.freeze
 
-    SINGLE_SEND_PATH = '/email/public/v1/singleEmail/send'.freeze
+    SINGLE_SEND_PATH = '/marketing/v3/transactional/single-email/send'.freeze
     BASE_URL = 'https://api.hubapi.com'.freeze
     READ_TIMEOUT = 20
     OPEN_TIMEOUT = 20
@@ -94,11 +94,7 @@ module Hubspot
         end
 
         if mail.reply_to.present?
-          if mail.reply_to.size > 1
-            data[:message][:replyToList] = mail.reply_to
-          else
-            data[:message][:replyTo] = mail.reply_to.first
-          end
+          data[:message][:replyTo] = mail.reply_to
         end
 
         # Copy subject from header to custom property
@@ -108,13 +104,13 @@ module Hubspot
         end
 
         if mail.contact_properties.present?
-          data[:contactProperties] =
-            hash_to_properties(mail.contact_properties, :key_name => :name)
+          # V1 used to expect an array of objects with 'key' and 'value' properties
+          # but V3 just wants an object with key-value pairs. same for custom_properties.
+          data[:contactProperties] = mail.contact_properties
         end
 
         if mail.custom_properties.present?
-          data[:customProperties] =
-            hash_to_properties(mail.custom_properties, :key_name => :name)
+          data[:customProperties] = mail.custom_properties
         end
 
         data
