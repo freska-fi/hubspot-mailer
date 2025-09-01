@@ -123,10 +123,12 @@ module Hubspot
 
       def parse_response(response)
         status_code = response["sendResult"]
+        status = response["status"]
 
-        case status_code
-          when "SENT", "QUEUED"
-            response["eventId"]
+        Rails.logger.info "Hubspot result #{response.inspect}"
+
+        if status == "CANCELED" && !status_code.blank?
+          case status_code
           when "INVALID_TO_ADDRESS"
             raise RecipientAddressError.new(response), "The TO address is invalid: #{status_code}"
           when "INVALID_FROM_ADDRESS"
@@ -139,7 +141,10 @@ module Hubspot
             raise InvalidTemplateError.new(response), "The emailId is invalid, or the emailId is an email that is not set up for Single Send: #{status_code}"
           else
             raise UnknownResponseError.new(response), "Unrecognized status code: #{status_code}"
+          end
         end
+
+        response["eventId"]
       end
     end
 
