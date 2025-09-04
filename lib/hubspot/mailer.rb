@@ -105,12 +105,12 @@ module Hubspot
 
         if mail.contact_properties.present?
           # V1 used to expect an array of objects with 'key' and 'value' properties
-          # but V3 just wants an object with key-value pairs. same for custom_properties.
-          data[:contactProperties] = mail.contact_properties
+          # but V3 just wants an object with key-value pairs with no null values. same for custom_properties.
+          data[:contactProperties] = mail.contact_properties.transform_values { |v| v.nil? ? "" : v }
         end
 
         if mail.custom_properties.present?
-          data[:customProperties] = mail.custom_properties
+          data[:customProperties] = mail.custom_properties.transform_values { |v| v.nil? ? "" : v }
         end
 
         data
