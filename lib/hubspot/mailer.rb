@@ -42,14 +42,14 @@ module Hubspot
 
         # Call the API
         url = BASE_URL + SINGLE_SEND_PATH
-        response = HTTParty.post(url, 
-          { 
-            body: data.to_json, 
+        response = HTTParty.post(url,
+          {
+            body: data.to_json,
             headers: {
               'Content-Type' => 'application/json',
               'Authorization' => "Bearer #{@token}"
-              }, 
-            format: :json, 
+              },
+            format: :json,
             read_timeout: READ_TIMEOUT,
             open_timeout: OPEN_TIMEOUT
           }
@@ -168,6 +168,7 @@ module Hubspot
         @_message = ActionMailer::Base::NullMail.new unless @_mail_was_called
       end
     end
+    ruby2_keywords(:process)
 
     def mail(headers = {}, &block)
       return message if @_mail_was_called && headers.blank? && !block
